@@ -66,10 +66,7 @@ class PurchaseOrderItem(models.Model):
 
 class Sale(models.Model):
     code = models.CharField(max_length=100)
-    sub_total = models.FloatField(default=0)
     grand_total = models.FloatField(default=0)
-    tax_amount = models.FloatField(default=0)
-    tax = models.FloatField(default=0)
     tendered_amount = models.FloatField(default=0)
     amount_change = models.FloatField(default=0)
     date_added = models.DateTimeField(default=timezone.now) 
@@ -84,10 +81,13 @@ class SalesItem(models.Model):
     quantity = models.FloatField(default=0)
     total = models.FloatField(default=0)
 
+    def __str__(self):
+        return self.sale_id.code
+
 class ReturnRequest(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    quantity = models.FloatField(default=0)
-    sale_record = models.ForeignKey('Sale', on_delete=models.SET_NULL, blank=True, null=True)  # Link to sale record if applicable
+    quantity = models.IntegerField(default=0)
+    sale_record = models.ForeignKey(Sale, on_delete=models.SET_NULL, blank=True, null=True)  # Link to sale record if applicable
     return_date = models.DateTimeField(default=timezone.now)
     reason = models.TextField()
     def __str__(self):

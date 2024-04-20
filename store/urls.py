@@ -44,4 +44,11 @@ urlpatterns = [
     path('sales', views.salesList, name="sales-page"),
     path('receipt', views.receipt, name="receipt-modal"),
     path('delete_sale', views.delete_sale, name="delete-sale"),
+
+    path('return', views.return_request, name="return_request-page"),
+    path('manage_return', views.manage_return_request, name="manage_return_request-page"),
+    path('save_return', views.save_return_request, name="save_return_request-page"),
+    path('delete_return', views.delete_return, name="delete-return_request"),
+
+
 ]

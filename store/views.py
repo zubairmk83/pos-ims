@@ -1,10 +1,7 @@
-from pickle import FALSE
 from django.shortcuts import redirect, render
 from django.http import HttpResponse,JsonResponse
 
-# from flask import jsonify
 from apis.models import *
-from django.db.models import Count, Sum
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.views.decorators.csrf import csrf_exempt
@@ -12,9 +9,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password
 from django.shortcuts import redirect
 import json, sys
-from datetime import date, datetime
+from datetime import datetime
 from django.contrib.auth.models import User
-# from django.contrib.admin.views.decorators import staff_member_required
 
 
 # Login
@@ -350,40 +346,40 @@ def purchase(request):
 
 @login_required
 def manage_purchase(request):
-    product = {}
-    vendor={}
     purchase = PurchaseOrderItem.objects.all()
     if request.method == 'GET':
-        data =  request.GET
-        id = ''
-        if 'id' in data:
-            id= data['id']
+        data = request.GET
+        id = data.get('id', '')
         if id.isnumeric() and int(id) > 0:
-            product = Product.objects.filter(id=id).first()
-            vendor =  Vendor.objects.filter(id=id).first()
+            purchase = PurchaseOrderItem.objects.filter(id=id).first()
+            if purchase:
+                vendor = Vendor.objects.filter(id=purchase.vendor_id).first()
+                product = Product.objects.filter(id=purchase.product_id).first()
 
     context = {
-        'products' : product,
-        'purchases' : purchase,
-        'vendors' : vendor
+        'purchase': purchase,
+        'vendors': Vendor.objects.all(),
+        'products': Product.objects.all(),
     }
-    return render(request, 'store/manage_purchase.html',context)
+    return render(request, 'store/manage_purchase.html', context)
 
 @login_required
 def save_purchase(request):
     data = request.POST
     resp = {'status': 'failed'}
     try:
-        # Assuming 'vendor_id' and 'product_id' are provided in the POST data
         vendor_id = data.get('vendor_id')
         product_id = data.get('product_id')
         quantity = int(data.get('quantity', 0))
 
-        if (data['id']).isnumeric() and int(data['id']) > 0 :
-            save_purchase = PurchaseOrderItem.objects.filter(id = data['id']).update(vendor_id=vendor_id, product_id=product_id, quantity=quantity)
+        if 'id' in data and data['id'].isnumeric() and int(data['id']) > 0:
+            purchase = PurchaseOrderItem.objects.get(id=data['id'])
+            purchase.vendor_id = vendor_id
+            purchase.product_id = product_id
+            purchase.quantity = quantity
+            purchase.save()
         else:
-            save_purchase = PurchaseOrderItem(vendor_id=vendor_id, product_id=product_id, quantity=quantity)
-            save_purchase.save()
+            PurchaseOrderItem.objects.create(vendor_id=vendor_id, product_id=product_id, quantity=quantity)
 
         # Update the product's quantity
         product = Product.objects.get(id=product_id)
@@ -393,9 +389,12 @@ def save_purchase(request):
         resp['status'] = 'success'
         messages.success(request, 'Purchase order successfully saved.')
 
-    except:
+    except Exception as e:
         resp['status'] = 'failed'
-    return HttpResponse(json.dumps(resp), content_type="application/json")
+        resp['msg'] = str(e)
+
+    return JsonResponse(resp)
+
 
 @login_required
 def delete_purchase(request):
@@ -435,39 +434,42 @@ def checkout_modal(request):
 
 @login_required
 def save_pos(request):
-    resp = {'status':'failed','msg':''}
+    resp = {'status': 'failed', 'msg': ''}
     data = request.POST
     pref = datetime.now().year + datetime.now().year
     i = 1
     while True:
         code = '{:0>5}'.format(i)
-        i += int(1)
-        check = Sale.objects.filter(code = str(pref) + str(code)).all()
+        i += 1
+        check = Sale.objects.filter(code=str(pref) + str(code)).all()
         if len(check) <= 0:
             break
     code = str(pref) + str(code)
 
     try:
-        sales = Sale(code=code, sub_total = data['sub_total'], tax = data['tax'], tax_amount = data['tax_amount'], grand_total = data['grand_total'], tendered_amount = data['tendered_amount'], amount_change = data['amount_change']).save()
-        sale_id = Sale.objects.last().pk
+        sale = Sale(code=code, grand_total=data['grand_total'], tendered_amount=data['tendered_amount'], amount_change=data['amount_change'])
+        sale.save()
+        sale_id = sale.pk
         i = 0
         for prod in data.getlist('product_id[]'):
-            product_id = prod 
-            sale = Sale.objects.filter(id=sale_id).first()
+            product_id = prod
             product = Product.objects.filter(id=product_id).first()
-            qty = data.getlist('qty[]')[i] 
-            price = data.getlist('price[]')[i] 
-            total = float(qty) * float(price)
-            print({'sale_id' : sale, 'product_id' : product, 'qty' : qty, 'price' : price, 'total' : total})
-            SalesItem(sale_id = sale, product_id = product, qty = qty, price = price, total = total).save()
-            i += int(1)
+            quantity = data.getlist('quantity[]')[i]
+            price = data.getlist('price[]')[i]
+            total = float(quantity) * float(price)
+            # Reduce product quantity
+            product.quantity -= int(quantity)
+            product.save()
+            # Save sales item
+            SalesItem(sale_id=sale, product_id=product, quantity=quantity, price=price, total=total).save()
+            i += 1
         resp['status'] = 'success'
         resp['sale_id'] = sale_id
         messages.success(request, "Sale Record has been saved.")
-    except:
-        resp['msg'] = "An error occured"
-        print("Unexpected error:", sys.exc_info()[0])
-    return HttpResponse(json.dumps(resp),content_type="application/json")
+    except Exception as e:
+        resp['msg'] = "An error occurred: " + str(e)
+        print("Unexpected error:", e)
+    return HttpResponse(json.dumps(resp), content_type="application/json")
 
 @login_required
 def salesList(request):
@@ -480,11 +482,8 @@ def salesList(request):
                 data[field.name] = getattr(sale,field.name)
         data['items'] = SalesItem.objects.filter(sale_id = sale).all()
         data['item_count'] = len(data['items'])
-        if 'tax_amount' in data:
-            data['tax_amount'] = format(float(data['tax_amount']),'.2f')
-        # print(data)
+        print(data['item_count'])
         sale_data.append(data)
-    # print(sale_data)
     context = {
         'page_title':'Sales Transactions',
         'sale_data':sale_data,
@@ -500,16 +499,14 @@ def receipt(request):
     for field in Sale._meta.get_fields():
         if field.related_model is None:
             transaction[field.name] = getattr(sales,field.name)
-    if 'tax_amount' in transaction:
-        transaction['tax_amount'] = format(float(transaction['tax_amount']))
     ItemList = SalesItem.objects.filter(sale_id = sales).all()
+    print(ItemList)
     context = {
         "transaction" : transaction,
         "salesItems" : ItemList
     }
 
     return render(request, 'store/receipt.html',context)
-    # return HttpResponse('')
 
 @login_required
 def delete_sale(request):
@@ -522,4 +519,85 @@ def delete_sale(request):
     except:
         resp['msg'] = "An error occured"
         print("Unexpected error:", sys.exc_info()[0])
+    return HttpResponse(json.dumps(resp), content_type='application/json')
+
+@login_required
+def return_request(request):
+    return_list = ReturnRequest.objects.all()
+    context = {
+        'page_title':'Return List',
+        'returns':return_list,
+    }
+    return render(request, 'store/return_request.html',context)
+
+@login_required
+def manage_return_request(request):
+    return_request = ReturnRequest.objects.all()
+    if request.method == 'GET':
+        data = request.GET
+        id = data.get('id', '')
+        if id.isnumeric() and int(id) > 0:
+            return_request = ReturnRequest.objects.filter(id=id).first()
+            if return_request:
+                sale_record= Sale.objects.filter(id=return_request.sale_record_id).first()
+                product = Product.objects.filter(id=return_request.product_id).first()
+
+    context = {
+        'return': return_request,
+        'products': Product.objects.all(),
+        'sale_records': Sale.objects.all(),
+    }
+    return render(request, 'store/manage_return_request.html', context)
+    
+    
+
+@login_required
+def save_return_request(request):
+    data = request.POST
+    resp = {'status': 'failed'}
+    try:
+        sale_id = data.get('sale_id')
+        product_id = data.get('product_id')
+        quantity = int(data.get('quantity', 0))
+        reason = data.get('reason')
+
+        # Fetch the Sale and Product instances
+        sale_record = Sale.objects.filter(id=sale_id).first() if sale_id else None
+        product = Product.objects.filter(id=product_id).first() if product_id else None
+
+        if 'id' in data and data['id'].isnumeric() and int(data['id']) > 0:
+            return_request = ReturnRequest.objects.get(id=data['id'])
+            return_request.sale_record = sale_record
+            return_request.product = product
+            return_request.quantity = quantity
+            return_request.reason = reason
+            return_request.save()
+        else:
+            ReturnRequest.objects.create(sale_record=sale_record, product=product, quantity=quantity, reason=reason )
+
+        # Update the product's quantity
+        if product:
+            product.quantity += quantity
+            product.save()
+
+        resp['status'] = 'success'
+        messages.success(request, 'Purchase order successfully saved.')
+
+    except Exception as e:
+        resp['status'] = 'failed'
+        resp['msg'] = str(e)
+
+    return JsonResponse(resp)
+
+
+@login_required
+def delete_return(request):
+    resp = {'status':'failed', 'msg':''}
+    id = request.POST.get('id')
+    try:
+        return_request = ReturnRequest.objects.filter(id = id).delete()
+        resp['status'] = 'success'
+        messages.success(request, 'Sale Record has been deleted.')
+    except:
+        resp['msg'] = "An error occured"
     return HttpResponse(json.dumps(resp), content_type='application/json')

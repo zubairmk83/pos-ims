@@ -36,7 +36,7 @@ class PurchaseOrderItemSerializer(serializers.ModelSerializer):
 class SaleSerializer(serializers.ModelSerializer):
   class Meta:
     model = Sale
-    fields = ('id', 'code', 'sub_total', 'grand_total', 'tax_amount', 'tax', 'tendered_amount', 'amount_change', 'date_added', 'date_updated')
+    fields = ('id', 'code', 'grand_total', 'tendered_amount', 'amount_change', 'date_added', 'date_updated')
 
 class SalesItemSerializer(serializers.ModelSerializer):
   sale = SaleSerializer(read_only=True)

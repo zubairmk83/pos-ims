@@ -1,41 +1,41 @@
 <div class="container-fluid">
-    <form action="" id="purchase-form">
+    <form action="" id="return_request-form">
 
-        {% if purchase.pk %}
-        <input type="hidden" name="id" value="{{ purchase.pk }}" />
+        {% if return.pk %}
+        <input type="hidden" name="id" value="{{ return.pk }}" />
         {% endif %}
 
         <div class="form-group mb-3">
-            <label for="vendor_id" class="control-label">Vendor Name</label>
-            <select name="vendor_id" id="vendor_id" class="form-select form-select-sm rounded-0" required>
-            {% if not purchase.vendor_id %}
+            <label for="product_id" class="control-label">Product Name</label>
+            <select name="product_id" id="product_id" class="form-select form-select-sm rounded-0" required>
+            {% if not return.product_id %}
             <option value="" disabled selected></option>
             {% else %}
             <option value="" disabled></option>
             {% endif %}
-            {% for vendor in vendors %}
-                {% if purchase.vendor_id == vendor.id %}
-                <option value="{{ vendor.id }}" selected>{{ vendor.name }}</option>
+            {% for product in products %}
+                {% if return.product_id == product.id %}
+                <option value="{{ product.id }}">{{ product.name }}</option>
                 {% else %}
-                <option value="{{ vendor.id }}">{{ vendor.name }}</option>
+                <option value="{{ product.id }}">{{ product.name }}</option>
                 {% endif %}
             {% endfor %}
             </select>
         </div>
         
         <div class="form-group mb-3">
-            <label for="product_id" class="control-label">Product Name</label>
-            <select name="product_id" id="product_id" class="form-select form-select-sm rounded-0" required>
-            {% if not purchase.product_id %}
+            <label for="sale_id" class="control-label">Sale Record</label>
+            <select name="sale_id" id="sale_id" class="form-select form-select-sm rounded-0">
+            {% if not return.sale_id %}
             <option value="" disabled selected></option>
             {% else %}
             <option value="" disabled></option>
             {% endif %}
-            {% for product in products %}
-                {% if purchase.product_id == product.id %}
-                <option value="{{ product.id }}" selected>{{ product.name }}</option>
+            {% for sale in sale_records %}
+                {% if return.sale_id == sale.id %}
+                <option value="{{ sale.id }}" >{{ sale.code }}</option>
                 {% else %}
-                <option value="{{ product.id }}">{{ product.name }}</option>
+                <option value="{{ sale.id }}">{{ sale.code }}</option>
                 {% endif %}
             {% endfor %}
             </select>
@@ -43,14 +43,19 @@
 
         <div class="form-group mb-3">
             <label for="quantity" class="control-label">Quantity</label>
-            <input type="text" name="quantity" id="quantity" class="form-control form-control-sm rounded-0" value="{% if product.quantity %}{{product.quantity}}{% endif %}" required>
+            <input type="text" name="quantity" id="quantity" class="form-control form-control-sm rounded-0" value="{% if return.quantity %}{{return.quantity}}{% endif %}" required>
+        </div>
+
+        <div class="form-group mb-3">
+            <label for="reason" class="control-label">Reason</label>
+            <input type="text" name="reason" id="reason" class="form-control form-control-sm rounded-0" value="{% if return.reason %}{{return.reason}}{% endif %}" required>
         </div>
         
     </form>
 </div>
 <script>
     $(function() {
-        $('#purchase-form').submit(function(e) {
+        $('#return_request-form').submit(function(e) {
             e.preventDefault();
             var _this = $(this)
             $('.err-msg').remove();
@@ -66,7 +71,7 @@
                 headers: {
                     "X-CSRFToken": '{{csrf_token}}'
                 },
-                url: "{% url 'save_purchase-page' %}",
+                url: "{% url 'save_return_request-page' %}",
                 data: new FormData($(this)[0]),
                 cache: false,
                 contentType: false,
