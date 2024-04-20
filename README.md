@@ -2,6 +2,9 @@
 
 A Point of Sale web app for businesses built with Python and Django.
 
+## DFD
+
+![1](https://github.com/Zayed-Rahat/pos-ims/blob/main/POS_DFD.png)
 
 ## Features
 - User Management:
