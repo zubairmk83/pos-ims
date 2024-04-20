@@ -39,7 +39,6 @@ def logoutuser(request):
     logout(request)
     return redirect('/')
 
-# Create your views here.
 @login_required
 def home(request):
     now = datetime.now()
@@ -68,7 +67,7 @@ def home(request):
     }
     return render(request, 'store/home.html',context)
 
-#Casheir management
+#Cashier management
 @login_required
 def cashier(request):
     cashier_list = Cashier.objects.all() 
@@ -132,7 +131,6 @@ def save_cashier(request):
     except Exception as e:
         resp['error'] = str(e)
     return HttpResponse(json.dumps(resp), content_type="application/json")
-
 
 
 @login_required
@@ -382,7 +380,6 @@ def save_purchase(request):
 
     return JsonResponse(resp)
 
-
 @login_required
 def delete_purchase(request):
     data =  request.POST
@@ -394,6 +391,7 @@ def delete_purchase(request):
     except:
         resp['status'] = 'failed'
     return HttpResponse(json.dumps(resp), content_type="application/json")
+
 #POS Manegement
 @login_required
 def pos(request):
@@ -574,7 +572,6 @@ def save_return_request(request):
         resp['msg'] = str(e)
 
     return JsonResponse(resp)
-
 
 @login_required
 def delete_return(request):

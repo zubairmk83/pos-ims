@@ -11,14 +11,14 @@ class CashierSerializer(serializers.ModelSerializer):
 class CategorySerializer(serializers.ModelSerializer):
   class Meta:
     model = Category
-    fields = ('id', 'name', 'description', 'date_added', 'date_updated')
+    fields = ('id', 'name', 'description', 'date_added')
 
 class ProductSerializer(serializers.ModelSerializer):
   category = CategorySerializer(read_only=True)
 
   class Meta:
     model = Product
-    fields = ('id', 'code', 'category', 'name', 'description', 'price', 'quantity', 'status', 'date_added', 'date_updated')
+    fields = ('id', 'code', 'category', 'name', 'description', 'price', 'quantity', 'status', 'date_added')
 
 class VendorSerializer(serializers.ModelSerializer):
   class Meta:
@@ -28,12 +28,12 @@ class VendorSerializer(serializers.ModelSerializer):
 class PurchaseOrderItemSerializer(serializers.ModelSerializer):
   class Meta:
     model = PurchaseOrderItem
-    fields = ('id', 'vendor', 'product', 'quantity', 'unit_price')
+    fields = ('id', 'vendor', 'product', 'quantity')
 
 class SaleSerializer(serializers.ModelSerializer):
   class Meta:
     model = Sale
-    fields = ('id', 'code', 'grand_total', 'tendered_amount', 'amount_change', 'date_added', 'date_updated')
+    fields = ('id', 'code', 'grand_total', 'tendered_amount', 'amount_change', 'date_added')
 
 class SalesItemSerializer(serializers.ModelSerializer):
   sale = SaleSerializer(read_only=True)
@@ -44,9 +44,6 @@ class SalesItemSerializer(serializers.ModelSerializer):
     fields = ('id', 'sale', 'product', 'price', 'quantity', 'total')
 
 class ReturnRequestSerializer(serializers.ModelSerializer):
-  product = ProductSerializer(read_only=True)
-  sale_record = SaleSerializer(read_only=True)
-
   class Meta:
     model = ReturnRequest
     fields = ('id', 'product', 'quantity', 'sale_record', 'return_date', 'reason')
