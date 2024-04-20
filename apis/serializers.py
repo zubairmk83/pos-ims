@@ -26,9 +26,6 @@ class VendorSerializer(serializers.ModelSerializer):
     fields = ('id', 'name', 'contact_info')
 
 class PurchaseOrderItemSerializer(serializers.ModelSerializer):
-#   vendor = VendorSerializer(read_only=True)
-#   product = ProductSerializer(read_only=True)
-
   class Meta:
     model = PurchaseOrderItem
     fields = ('id', 'vendor', 'product', 'quantity', 'unit_price')
