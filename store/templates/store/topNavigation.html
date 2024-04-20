@@ -1,6 +1,6 @@
 {% load static %}
 <!-- partial:partials/_navbar.html -->
-<header class="mdc-top-app-bar border-bottom shadow">
+<header class="bg-dark mdc-top-app-bar border-bottom shadow">
     <div class="mdc-top-app-bar__row">
         <div class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start">
             <button class="material-icons mdc-top-app-bar__navigation-icon mdc-icon-button sidebar-toggler">menu</button>
@@ -10,13 +10,14 @@
                 <button class="mdc-button mdc-menu-button">
                     <span class="d-flex align-items-center">
                     <span class="figure">
-                        <img src="{% static 'pos_ims/assets/material-admin/images/faces/ava.jpg' %}" alt="user" class="user">
+                        <img src="{% static 'pos_ims/assets/material-admin/images/favicon1.png' %}" alt="user" class="user">
                     </span>
-                    <span class="user-name">{{ user.username }}</span>
+                    <span class="user-name text-success">{{ user.username }}</span>
                     </span>
                 </button>
                 <div class="mdc-menu mdc-menu-surface" tabindex="-1">
                     <ul class="mdc-list" role="menu" aria-hidden="true" aria-orientation="vertical">
+                        {% if request.user.Cashier.account_type  == 'Admin' %}
                         <li class="mdc-list-item" role="menuitem">
                             <a class="text-dark" href="{% url 'redirect-admin' %}">
                                 <div class="item-thumbnail item-thumbnail-icon-only">
@@ -29,6 +30,7 @@
                                 </div>
                             </a>
                         </li>
+                        {% endif %}
                         <li class="mdc-list-item" role="menuitem">
                             <a class="text-dark" href="{% url 'logout' %}">
                                 <div class="item-thumbnail item-thumbnail-icon-only">

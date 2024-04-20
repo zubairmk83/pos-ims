@@ -68,17 +68,8 @@ def home(request):
     }
     return render(request, 'store/home.html',context)
 
-
-def about(request):
-    context = {
-        'page_title':'About',
-    }
-    return render(request, 'store/about.html',context)
-
-
-#User management
-
-# @staff_member_required
+#Casheir management
+@login_required
 def cashier(request):
     cashier_list = Cashier.objects.all() 
     context = {
@@ -88,10 +79,8 @@ def cashier(request):
     
     return render(request, 'store/cashier.html', context)
 
-# @staff_member_required
-@csrf_exempt
+@login_required
 def manage_cashier(request):
-    # Handle GET request
     cashier = {}
     if request.method == 'GET':
         data = request.GET
@@ -104,7 +93,7 @@ def manage_cashier(request):
     }
     return render(request, 'store/manage_cashier.html', context)
 
-@csrf_exempt
+@login_required
 def save_cashier(request):
     data = request.POST
     resp = {'status': 'failed'}
@@ -146,8 +135,7 @@ def save_cashier(request):
 
 
 
-# @staff_member_required
-
+@login_required
 def delete_cashier(request):
     data =  request.POST
     resp = {'status':''}
@@ -161,7 +149,7 @@ def delete_cashier(request):
     return HttpResponse(json.dumps(resp), content_type="application/json")
 
 
-#Categories
+#Categories Management
 @login_required
 def category(request):
     category_list = Category.objects.all()
@@ -214,8 +202,7 @@ def delete_category(request):
         resp['status'] = 'failed'
     return HttpResponse(json.dumps(resp), content_type="application/json")
 
-
-#Categories
+#Vendor Mangement
 @login_required
 def vendor(request):
     vendor_list = Vendor.objects.all()
@@ -268,7 +255,7 @@ def delete_vendor(request):
         resp['status'] = 'failed'
     return HttpResponse(json.dumps(resp), content_type="application/json")
 
-# Products
+# Products Manegement
 @login_required
 def products(request):
     product_list = Product.objects.all()
@@ -334,7 +321,7 @@ def delete_product(request):
         resp['status'] = 'failed'
     return HttpResponse(json.dumps(resp), content_type="application/json")
 
-
+#Purchase Manegement
 @login_required
 def purchase(request):
     purchase_list = PurchaseOrderItem.objects.all()
@@ -407,7 +394,7 @@ def delete_purchase(request):
     except:
         resp['status'] = 'failed'
     return HttpResponse(json.dumps(resp), content_type="application/json")
-
+#POS Manegement
 @login_required
 def pos(request):
     products = Product.objects.filter(status = 1)
@@ -521,6 +508,7 @@ def delete_sale(request):
         print("Unexpected error:", sys.exc_info()[0])
     return HttpResponse(json.dumps(resp), content_type='application/json')
 
+#Return Request Management
 @login_required
 def return_request(request):
     return_list = ReturnRequest.objects.all()
@@ -548,8 +536,6 @@ def manage_return_request(request):
         'sale_records': Sale.objects.all(),
     }
     return render(request, 'store/manage_return_request.html', context)
-    
-    
 
 @login_required
 def save_return_request(request):
