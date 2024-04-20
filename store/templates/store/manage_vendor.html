@@ -1,19 +1,19 @@
 <div class="container-fluid">
-    <form action="" id="category-form">
-        <input type="hidden" name="id" value="{% if category.pk %}{{category.pk}}{% endif %}">
+    <form action="" id="vendor-form">
+        <input type="hidden" name="id" value="{% if vendor.pk %}{{vendor.pk}}{% endif %}">
         <div class="form-group mb-3">
-            <label for="name" class="control-label">Category Name</label>
-            <input type="text" name="name" id="name" class="form-control form-control-sm rounded-0" value="{% if category.name %}{{category.name}}{% endif %}" required>
+            <label for="name" class="control-label">Vendor Name</label>
+            <input type="text" name="name" id="name" class="form-control form-control-sm rounded-0" value="{% if vendor.name %}{{vendor.name}}{% endif %}" required>
         </div>
         <div class="form-group mb-3">
-            <label for="description" class="control-label">Description</label>
-            <textarea rows="5" name="description" id="description" class="form-control form-control-sm rounded-0" required>{% if category.description %}{{category.description}}{% endif %}</textarea>
+            <label for="contact_info" class="control-label">Contact Info</label>
+            <textarea rows="5" name="contact_info" id="contact_info" class="form-control form-control-sm rounded-0" required>{% if vendor.contact_info %}{{vendor.contact_info}}{% endif %}</textarea>
         </div>
     </form>
 </div>
 <script>
     $(function() {
-        $('#category-form').submit(function(e) {
+        $('#vendor-form').submit(function(e) {
             e.preventDefault();
             var _this = $(this)
             $('.err-msg').remove();
@@ -29,7 +29,7 @@
                 headers: {
                     "X-CSRFToken": '{{csrf_token}}'
                 },
-                url: "{% url 'save-category-page' %}",
+                url: "{% url 'save-vendor-page' %}",
                 data: new FormData($(this)[0]),
                 cache: false,
                 contentType: false,
