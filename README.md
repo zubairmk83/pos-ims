@@ -54,7 +54,7 @@ Integration with sales records to process returns and update inventory according
   PowerShell:
   ```
    python -m venv venv
-   venv\Scripts\Activate.ps1
+   venv\Scripts\activate
   ```
   
   Linux:
