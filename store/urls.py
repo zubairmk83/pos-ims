@@ -5,6 +5,7 @@ from django.urls import path
 from django.views.generic.base import RedirectView
 
 urlpatterns = [
+    
     path('redirect-admin', RedirectView.as_view(url="/admin"),name="redirect-admin"),
     path('', views.home, name="home-page"),
     path('login', auth_views.LoginView.as_view(template_name = 'store/login.html',redirect_authenticated_user=True), name="login"),

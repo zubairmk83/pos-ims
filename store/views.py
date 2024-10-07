@@ -209,6 +209,7 @@ def vendor(request):
         'vendors':vendor_list,
     }
     return render(request, 'store/vendor.html',context)
+
 @login_required
 def manage_vendor(request):
     vendor = {}
