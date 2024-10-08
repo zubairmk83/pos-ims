@@ -8,33 +8,22 @@ A Point of Sale web app for businesses built with Python and Django.
 
 ## Features
 - User Management:
-The system should support multiple user roles, such as admin/manager, cashier.
-Each user should have unique login credentials.
-Admin should have the authority to add, delete, or modify user accounts and their permissions.
-Define permissions for each user role (e.g., access to specific functionalities, data visibility)
+The system supports multiple user roles, such as admin/manager, cashier. Each user has unique login credentials. Admin has the authority to add, delete, or modify user accounts and their permissions. Define permissions for each user role (e.g., access to specific functionalities, data visibility)
 
 - Product Management:
-Ability to add new products with details such as name, description, image, category, price, and stock.
-Support for updating product information like price changes or quantity adjustments.
-Ability to categorize products for easier management and organization.
+Ability to add new products with details such as name, description, category, price, and stock. Support for updating product information like price changes or quantity adjustments. Ability to categorize products for easier management and organization.
 
 - Purchase:
-Create purchase orders for new inventory from vendors.
-Track purchase history and manage vendor information.
-Receive purchased inventory and update stock levels accordingly.
+Create purchase orders for new inventory from vendors. Track purchase history and manage vendor information.Receive purchased inventory and update stock levels accordingly.
 
 - Stock Management:
-Track inventory levels in real-time for all products and variations.
-Generate low-stock alerts to trigger reordering when a stock falls below a threshold.
+Track inventory levels in real-time for all products and variations. Generate low-stock alerts to trigger reordering when a stock falls below a threshold.
 
 - Sales:
-Ability to process sales transactions quickly and efficiently.
-Generation of receipts for customers.
+Ability to process sales transactions quickly and efficiently. Generation of receipts for customers.
 
 - Return:
-Capability to handle returns and exchanges.
-Validation of return eligibility based on predefined criteria (e.g., time since purchase, condition of the product).
-Integration with sales records to process returns and update inventory accordingly.
+Capability to handle returns and exchanges. Integration with sales records to process returns and update inventory accordingly.
 
 
 
